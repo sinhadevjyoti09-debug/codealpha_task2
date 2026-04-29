@@ -1,0 +1,102 @@
+{% extends 'social/base.html' %}
+
+{% block title %}Sparks — Home{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <!-- Create Post Form -->
+    {% if user.is_authenticated %}
+    <div class="card">
+        <form method="POST" action="{% url 'create_post' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.content }}
+            <div class="post-form-actions">
+                <div>
+                    <label for="id_image">📷 Add Photo</label>
+                    <input type="file" name="image" id="id_image" class="form-file" accept="image/*">
+                </div>
+                <div>
+                    <label for="id_video">🎬 Add Video</label>
+                    <input type="file" name="video" id="id_video" class="form-file" accept="video/*">
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-left: auto;">Post</button>
+            </div>
+        </form>
+    </div>
+    {% else %}
+    <div class="card text-center">
+        <p>Welcome to <strong>Sparks</strong>! <a href="{% url 'login' %}">Login</a> or <a href="{% url 'register' %}">Sign Up</a> to start posting.</p>
+    </div>
+    {% endif %}
+
+    <!-- Feed -->
+    <h2 class="page-title">Latest Posts</h2>
+
+    {% if posts %}
+        {% for post in posts %}
+        <div class="card" id="post-{{ post.id }}">
+            <div class="card-header">
+                <div class="card-header-left">
+                    {% if post.user.profile.avatar %}
+                        <img src="{{ post.user.profile.get_avatar_url }}" class="mini-avatar" alt="">
+                    {% else %}
+                        <div class="mini-avatar-placeholder">{{ post.user.username|first|upper }}</div>
+                    {% endif %}
+                    <a href="{% url 'profile' post.user.username %}">{{ post.user.username }}</a>
+                </div>
+                <span class="timestamp">{{ post.created_at|timesince }} ago</span>
+            </div>
+            <div class="card-body">
+                {{ post.content }}
+            </div>
+
+            <!-- Post Media -->
+            {% if post.image %}
+            <div class="post-media">
+                <img src="{{ post.image.url }}" alt="Post image">
+            </div>
+            {% endif %}
+            {% if post.video %}
+            <div class="post-media">
+                <video controls>
+                    <source src="{{ post.video.url }}">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            {% endif %}
+
+            <div class="card-footer">
+                <!-- Like Button -->
+                {% if user.is_authenticated %}
+                <form method="POST" action="{% url 'like_post' post.id %}" class="inline-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{% url 'index' %}">
+                    <button type="submit" class="btn-like {% if post.id in liked_posts %}liked{% endif %}">
+                        {% if post.id in liked_posts %}❤️{% else %}🤍{% endif %}
+                        {{ post.total_likes }}
+                    </button>
+                </form>
+                {% else %}
+                <span class="btn-like">🤍 {{ post.total_likes }}</span>
+                {% endif %}
+
+                <!-- Comment Count & Link -->
+                <a href="{% url 'post_detail' post.id %}" style="font-size:14px; color:#8a8d91; font-weight:600;">
+                    💬 {{ post.total_comments }}
+                </a>
+
+                <a href="{% url 'post_detail' post.id %}" style="margin-left: auto; font-size:13px;" class="btn btn-secondary btn-sm">
+                    View Post
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="card text-center">
+            <p class="text-muted">No posts yet. Be the first to spark a conversation! ⚡</p>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

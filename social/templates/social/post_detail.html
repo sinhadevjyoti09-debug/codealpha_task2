@@ -1,0 +1,98 @@
+{% extends 'social/base.html' %}
+
+{% block title %}Post by {{ post.user.username }} — Sparks{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <!-- The Post -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-header-left">
+                {% if post.user.profile.avatar %}
+                    <img src="{{ post.user.profile.get_avatar_url }}" class="mini-avatar" alt="">
+                {% else %}
+                    <div class="mini-avatar-placeholder">{{ post.user.username|first|upper }}</div>
+                {% endif %}
+                <a href="{% url 'profile' post.user.username %}">{{ post.user.username }}</a>
+            </div>
+            <span class="timestamp">{{ post.created_at|timesince }} ago</span>
+        </div>
+        <div class="card-body">
+            {{ post.content }}
+        </div>
+
+        {% if post.image %}
+        <div class="post-media">
+            <img src="{{ post.image.url }}" alt="Post image">
+        </div>
+        {% endif %}
+        {% if post.video %}
+        <div class="post-media">
+            <video controls>
+                <source src="{{ post.video.url }}">
+            </video>
+        </div>
+        {% endif %}
+
+        <div class="card-footer">
+            <!-- Like Button -->
+            {% if user.is_authenticated %}
+            <form method="POST" action="{% url 'like_post' post.id %}" class="inline-form">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'post_detail' post.id %}">
+                <button type="submit" class="btn-like {% if has_liked %}liked{% endif %}">
+                    {% if has_liked %}❤️{% else %}🤍{% endif %}
+                    {{ post.total_likes }}
+                </button>
+            </form>
+            {% else %}
+            <span class="btn-like">🤍 {{ post.total_likes }}</span>
+            {% endif %}
+
+            <span style="font-size:14px; color:#8a8d91; font-weight:600;">
+                💬 {{ comments|length }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Comment Section -->
+    <div class="card">
+        <h3 class="page-title mb-8">Comments</h3>
+
+        {% if comments %}
+            {% for comment in comments %}
+            <div class="comment">
+                {% if comment.user.profile.avatar %}
+                    <img src="{{ comment.user.profile.get_avatar_url }}" class="mini-avatar comment-avatar" alt="">
+                {% else %}
+                    <div class="mini-avatar-placeholder comment-avatar-placeholder">{{ comment.user.username|first|upper }}</div>
+                {% endif %}
+                <div class="comment-body">
+                    <span class="comment-author">
+                        <a href="{% url 'profile' comment.user.username %}">{{ comment.user.username }}</a>
+                    </span>
+                    <p class="comment-text">{{ comment.content }}</p>
+                    <span class="comment-time">{{ comment.created_at|timesince }} ago</span>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">No comments yet. Be the first to comment!</p>
+        {% endif %}
+
+        <!-- Add Comment Form -->
+        {% if user.is_authenticated %}
+        <form method="POST" action="{% url 'add_comment' post.id %}" class="comment-form">
+            {% csrf_token %}
+            {{ comment_form.content }}
+            <button type="submit" class="btn btn-primary btn-sm">Send</button>
+        </form>
+        {% else %}
+        <p class="text-muted mt-16"><a href="{% url 'login' %}">Login</a> to add a comment.</p>
+        {% endif %}
+    </div>
+
+    <a href="{% url 'index' %}" style="display:inline-block; margin-bottom:32px; font-size:14px;">← Back to Feed</a>
+</div>
+{% endblock %}

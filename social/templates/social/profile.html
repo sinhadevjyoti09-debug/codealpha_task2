@@ -1,0 +1,110 @@
+{% extends 'social/base.html' %}
+
+{% block title %}{{ profile_user.username }} — Sparks{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <!-- Profile Header -->
+    <div class="card profile-header">
+        {% if profile_user.profile.avatar %}
+            <img src="{{ profile_user.profile.get_avatar_url }}" class="profile-avatar" alt="{{ profile_user.username }}">
+        {% else %}
+            <div class="profile-avatar-placeholder">
+                {{ profile_user.username|first|upper }}
+            </div>
+        {% endif %}
+        <div class="profile-username">{{ profile_user.username }}</div>
+        {% if profile_user.profile.bio %}
+        <p class="profile-bio">{{ profile_user.profile.bio }}</p>
+        {% endif %}
+        {% if profile_user.email %}
+        <p class="text-muted">{{ profile_user.email }}</p>
+        {% endif %}
+
+        <!-- Stats -->
+        <div class="profile-stats">
+            <div class="profile-stat">
+                <span class="profile-stat-num">{{ posts|length }}</span>
+                <span class="profile-stat-label">Posts</span>
+            </div>
+            <div class="profile-stat">
+                <span class="profile-stat-num">{{ followers_count }}</span>
+                <span class="profile-stat-label">Followers</span>
+            </div>
+            <div class="profile-stat">
+                <span class="profile-stat-num">{{ following_count }}</span>
+                <span class="profile-stat-label">Following</span>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="profile-actions">
+            {% if user.is_authenticated and user == profile_user %}
+                <a href="{% url 'edit_profile' %}" class="btn btn-secondary">✏️ Edit Profile</a>
+            {% elif user.is_authenticated %}
+                <form method="POST" action="{% url 'follow_user' profile_user.username %}">
+                    {% csrf_token %}
+                    {% if is_following %}
+                        <button type="submit" class="btn btn-secondary">Unfollow</button>
+                    {% else %}
+                        <button type="submit" class="btn btn-primary">Follow</button>
+                    {% endif %}
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- User's Posts -->
+    <h2 class="page-title">Posts by {{ profile_user.username }}</h2>
+
+    {% if posts %}
+        {% for post in posts %}
+        <div class="card">
+            <div class="card-header">
+                <div class="card-header-left">
+                    {% if post.user.profile.avatar %}
+                        <img src="{{ post.user.profile.get_avatar_url }}" class="mini-avatar" alt="">
+                    {% else %}
+                        <div class="mini-avatar-placeholder">{{ post.user.username|first|upper }}</div>
+                    {% endif %}
+                    <a href="{% url 'profile' post.user.username %}">{{ post.user.username }}</a>
+                </div>
+                <span class="timestamp">{{ post.created_at|timesince }} ago</span>
+            </div>
+            <div class="card-body">
+                {{ post.content }}
+            </div>
+
+            {% if post.image %}
+            <div class="post-media">
+                <img src="{{ post.image.url }}" alt="Post image">
+            </div>
+            {% endif %}
+            {% if post.video %}
+            <div class="post-media">
+                <video controls>
+                    <source src="{{ post.video.url }}">
+                </video>
+            </div>
+            {% endif %}
+
+            <div class="card-footer">
+                <span class="btn-like">❤️ {{ post.total_likes }}</span>
+                <a href="{% url 'post_detail' post.id %}" style="font-size:14px; color:#8a8d91; font-weight:600;">
+                    💬 {{ post.total_comments }}
+                </a>
+                <a href="{% url 'post_detail' post.id %}" style="margin-left: auto;" class="btn btn-secondary btn-sm">
+                    View Post
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="card text-center">
+            <p class="text-muted">No posts yet.</p>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

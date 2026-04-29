@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sparks{% endblock %}</title>
+    <style>
+        /* ── Reset & Base ─────────────────────────────── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #1c1e21;
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: #1877f2;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* ── Navbar ───────────────────────────────────── */
+        .navbar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #ddd;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1877f2;
+            letter-spacing: -0.5px;
+        }
+
+        .navbar-brand span {
+            color: #f5a623;
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .navbar-links a {
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        .navbar-links a:hover {
+            background-color: #f0f2f5;
+            text-decoration: none;
+            color: #1877f2;
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            color: #1c1e21;
+        }
+
+        .navbar-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .navbar-avatar-placeholder {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: #1877f2;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ── Container ────────────────────────────────── */
+        .container {
+            max-width: 640px;
+            margin: 24px auto;
+            padding: 0 16px;
+        }
+
+        /* ── Cards ────────────────────────────────────── */
+        .card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #e4e6eb;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .card-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header a {
+            font-weight: 600;
+            color: #1c1e21;
+            font-size: 15px;
+        }
+
+        .card-header .timestamp {
+            font-size: 12px;
+            color: #8a8d91;
+        }
+
+        .card-body {
+            font-size: 15px;
+            color: #333;
+            margin-bottom: 12px;
+            word-wrap: break-word;
+        }
+
+        .card-footer {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding-top: 10px;
+            border-top: 1px solid #e4e6eb;
+        }
+
+        /* ── Post Media ──────────────────────────────── */
+        .post-media {
+            margin: 12px -20px;
+            text-align: center;
+            background: #fafafa;
+        }
+
+        .post-media img {
+            max-width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .post-media video {
+            max-width: 100%;
+            max-height: 500px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* ── Mini Avatar (for post cards & comments) ── */
+        .mini-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .mini-avatar-placeholder {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #1877f2;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .comment-avatar {
+            width: 28px;
+            height: 28px;
+        }
+
+        .comment-avatar-placeholder {
+            width: 28px;
+            height: 28px;
+            font-size: 11px;
+        }
+
+        /* ── Buttons ──────────────────────────────────── */
+        .btn {
+            display: inline-block;
+            padding: 8px 18px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: #1877f2;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-color: #166fe5;
+        }
+
+        .btn-secondary {
+            background-color: #e4e6eb;
+            color: #1c1e21;
+        }
+
+        .btn-secondary:hover {
+            background-color: #d8dadf;
+        }
+
+        .btn-danger {
+            background-color: #ff4d4f;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background-color: #e04345;
+        }
+
+        .btn-like {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #8a8d91;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-like.liked {
+            color: #e04345;
+        }
+
+        .btn-sm {
+            padding: 5px 12px;
+            font-size: 13px;
+        }
+
+        /* ── Forms ────────────────────────────────────── */
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1877f2;
+            box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.15);
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #555;
+        }
+
+        .form-file {
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .post-form-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .post-form-actions label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            cursor: pointer;
+        }
+
+        /* ── Messages ────────────────────────────────── */
+        .messages {
+            list-style: none;
+            margin-bottom: 16px;
+        }
+
+        .messages li {
+            padding: 10px 16px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .messages .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .messages .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* ── Profile ─────────────────────────────────── */
+        .profile-header {
+            text-align: center;
+            padding: 24px 20px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 12px;
+            display: block;
+            border: 3px solid #e4e6eb;
+        }
+
+        .profile-avatar-placeholder {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #1877f2;
+            color: #fff;
+            font-size: 40px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            border: 3px solid #e4e6eb;
+        }
+
+        .profile-username {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .profile-bio {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 4px;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin: 16px 0;
+        }
+
+        .profile-stat {
+            text-align: center;
+        }
+
+        .profile-stat-num {
+            font-size: 20px;
+            font-weight: 700;
+            display: block;
+        }
+
+        .profile-stat-label {
+            font-size: 12px;
+            color: #8a8d91;
+        }
+
+        .profile-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        /* ── Current Avatar Preview ──────────────────── */
+        .current-avatar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .current-avatar img {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e4e6eb;
+        }
+
+        .current-avatar-placeholder {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: #1877f2;
+            color: #fff;
+            font-size: 26px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e4e6eb;
+        }
+
+        /* ── Comment Section ─────────────────────────── */
+        .comment {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f2f5;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .comment:last-child {
+            border-bottom: none;
+        }
+
+        .comment-body {
+            flex: 1;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            font-size: 13px;
+            color: #1c1e21;
+        }
+
+        .comment-text {
+            font-size: 14px;
+            color: #444;
+            margin-top: 2px;
+        }
+
+        .comment-time {
+            font-size: 11px;
+            color: #8a8d91;
+            margin-top: 2px;
+        }
+
+        .comment-form {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .comment-form .form-input {
+            margin-bottom: 0;
+            flex: 1;
+        }
+
+        /* ── Auth Pages ──────────────────────────────── */
+        .auth-container {
+            max-width: 400px;
+            margin: 60px auto;
+            padding: 0 16px;
+        }
+
+        .auth-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 32px;
+            border: 1px solid #e4e6eb;
+        }
+
+        .auth-card h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #1c1e21;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 14px;
+            color: #8a8d91;
+        }
+
+        /* ── Helpers ──────────────────────────────────── */
+        .text-center {
+            text-align: center;
+        }
+
+        .text-muted {
+            color: #8a8d91;
+            font-size: 13px;
+        }
+
+        .mt-16 {
+            margin-top: 16px;
+        }
+
+        .mb-8 {
+            margin-bottom: 8px;
+        }
+
+        /* ── Help text (form errors / password hints) ── */
+        .helptext,
+        .form-input + ul {
+            font-size: 12px;
+            color: #8a8d91;
+            margin-top: -6px;
+            margin-bottom: 8px;
+            padding-left: 16px;
+        }
+
+        .errorlist {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 8px;
+        }
+
+        .errorlist li {
+            color: #e04345;
+            font-size: 13px;
+        }
+
+        /* ── Page Title ──────────────────────────────── */
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #1c1e21;
+        }
+
+        /* ── Inline Form (for like/follow buttons) ──── */
+        .inline-form {
+            display: inline;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="{% url 'index' %}" class="navbar-brand">⚡ Spark<span>s</span></a>
+        <div class="navbar-links">
+            <a href="{% url 'index' %}">Home</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' user.username %}">My Profile</a>
+                <a href="{% url 'edit_profile' %}">Edit Profile</a>
+                <span class="navbar-user">
+                    {% if user.profile.avatar %}
+                        <img src="{{ user.profile.get_avatar_url }}" class="navbar-avatar" alt="">
+                    {% else %}
+                        <span class="navbar-avatar-placeholder">{{ user.username|first|upper }}</span>
+                    {% endif %}
+                    {{ user.username }}
+                </span>
+                <a href="{% url 'logout' %}">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-primary btn-sm">Sign Up</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% if messages %}
+    <div class="container">
+        <ul class="messages">
+            {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Page Content -->
+    {% block content %}{% endblock %}
+
+</body>
+</html>
